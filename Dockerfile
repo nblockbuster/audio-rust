@@ -6,7 +6,7 @@ COPY ./Cargo.lock ./Cargo.lock
 COPY ./Cargo.toml ./Cargo.toml
 COPY ./src ./src
 
-RUN apt-get update && apt-get -y install software-properties-common
+RUN apt-get update && apt-get -y install python3-launchpadlib && apt-get -y install software-properties-common
 RUN add-apt-repository ppa:tomtomtom/yt-dlp
 RUN apt-get update && apt-get -y install cmake && apt-get -y install pkg-config && apt-get -y install yt-dlp
 
