@@ -87,20 +87,18 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
 
         let g = ctx.cache.guild(guild_id);
         if g.is_none() {
-            interaction
-                .create_response(
-                    ctx,
-                    CreateInteractionResponse::Message(
-                        CreateInteractionResponseMessage::new().embed(
-                            CreateEmbed::new()
-                                .color(Colour::new(COLOR_ERROR))
-                                .description("Could not get current guild information")
-                                .title("Error")
-                                .timestamp(Timestamp::now()),
-                        ),
+            let _ = interaction.create_response(
+                ctx,
+                CreateInteractionResponse::Message(
+                    CreateInteractionResponseMessage::new().embed(
+                        CreateEmbed::new()
+                            .color(Colour::new(COLOR_ERROR))
+                            .description("Could not get current guild information")
+                            .title("Error")
+                            .timestamp(Timestamp::now()),
                     ),
-                )
-                .await?;
+                ),
+            );
 
             // TODO: guild err
             error!("guild none");
@@ -135,6 +133,7 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
 
         let src = YoutubeDl::new(data.http.clone(), url.to_string());
         let song = handler.play_input(src.into());
+        // TODO: persist loop setting
         let _ = song.enable_loop();
         let _ = song.set_volume(0.5);
 

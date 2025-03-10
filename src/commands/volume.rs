@@ -8,7 +8,7 @@ use crate::{COLOR_ERROR, COLOR_OK, UserData};
 
 pub fn register() -> CreateCommand {
     CreateCommand::new("volume")
-        .description("Adjust volume of the bot for everyone")
+        .description("Adjust volume of the bot for everyone for the current track only")
         .add_option(
             CreateCommandOption::new(
                 CommandOptionType::Number,
@@ -59,7 +59,7 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
                     ),
                 ),
             )
-            .await?;
+            .await;
     }
 
     Ok(())
