@@ -59,7 +59,7 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
                     ),
                 ),
             )
-            .await;
+            .await?;
     }
 
     Ok(())
