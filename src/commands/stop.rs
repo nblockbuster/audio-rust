@@ -1,0 +1,35 @@
+use log::{error, info, warn};
+use serenity::builder::*;
+use serenity::model::prelude::*;
+use serenity::prelude::*;
+use songbird::TrackEvent;
+
+use crate::{COLOR_OK, UserData};
+
+pub fn register() -> CreateCommand {
+    CreateCommand::new("stop").description("Stop playing song")
+}
+
+pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), serenity::Error> {
+    let guild_id = interaction.guild_id.unwrap();
+    let mut typemap = ctx.data.write().await;
+    let data = typemap.get_mut::<UserData>().unwrap();
+    let handle = data.track_handles.get_mut(&guild_id).unwrap();
+
+    let _ = handle.stop();
+
+    interaction
+        .create_response(
+            ctx,
+            CreateInteractionResponse::Message(
+                CreateInteractionResponseMessage::new().embed(
+                    CreateEmbed::new()
+                        .color(Colour::new(COLOR_OK))
+                        .description("Stopped track"),
+                ),
+            ),
+        )
+        .await?;
+
+    Ok(())
+}
