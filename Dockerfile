@@ -1,4 +1,4 @@
-FROM rust:1.85-bullseye as build
+FROM rust:1.85-bookworm as build
 
 WORKDIR /audio-bot
 
@@ -12,7 +12,7 @@ RUN apt-get update && apt-get -y install cmake && apt-get -y install pkg-config 
 
 RUN cargo build --release
 
-FROM rust:1.85-slim
+FROM rust:1.85-slim-bookworm
 
 COPY --from=build /audio-bot/target/release/audio-bot .
 
