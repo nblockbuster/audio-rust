@@ -18,4 +18,6 @@ RUN apt-get update && apt-get -y install python3-launchpadlib && apt-get -y inst
 RUN add-apt-repository ppa:tomtomtom/yt-dlp
 RUN apt-get update && apt-get -y install yt-dlp
 
+RUN yt-dlp -U
+
 CMD ["./audio-bot"]
