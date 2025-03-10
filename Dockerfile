@@ -14,10 +14,7 @@ FROM rust:1.85-slim-bookworm
 
 COPY --from=build /audio-bot/target/release/audio-bot .
 
-RUN apt-get update && apt-get -y install python3-launchpadlib && apt-get -y install software-properties-common
-RUN add-apt-repository ppa:tomtomtom/yt-dlp
-RUN apt-get update && apt-get -y install yt-dlp
-
-RUN yt-dlp -U
+RUN apt-get update && apt-get -y install pipx
+RUN pipx install yt-dlp && yt-dlp -U
 
 CMD ["./audio-bot"]

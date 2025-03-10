@@ -29,18 +29,18 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
         {
             let url = Url::parse(url_str);
             if let Err(err) = url {
-                interaction
-                    .create_response(
-                        ctx,
-                        CreateInteractionResponse::Message(
-                            CreateInteractionResponseMessage::new().embed(
-                                CreateEmbed::new()
-                                    .color(Colour::new(0xFF0000))
-                                    .description(format!("Not a valid URL: {}", err)),
-                            ),
-                        ),
-                    )
-                    .await?;
+                // interaction
+                //     .create_response(
+                //         ctx,
+                //         CreateInteractionResponse::Message(
+                //             CreateInteractionResponseMessage::new().embed(
+                //                 CreateEmbed::new()
+                //                     .color(Colour::new(0xFF0000))
+                //                     .description(format!("Not a valid URL: {}", err)),
+                //             ),
+                //         ),
+                //     )
+                //     .await?;
                 None
             } else {
                 Some(url.unwrap())
@@ -51,6 +51,7 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
     };
 
     if url.is_none() {
+        // TODO: search
         warn!("url none");
         return Ok(());
     }
@@ -116,25 +117,16 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
 
     let call = manager.join(guild_id, channel_id).await;
     if let Ok(handler_lock) = call {
-        // Attach an event handler to see notifications of all track errors.
         let mut handler = handler_lock.lock().await;
         handler.add_global_event(TrackEvent::Error.into(), TrackErrorNotifier);
     } else if let Err(e) = call {
         warn!("{}", e);
     }
 
-    // let _call = manager.join(guild_id, channel_id).await.unwrap();
-
     if let Some(handler_lock) = data.songbird.get(guild_id) {
         let mut handler = handler_lock.lock().await;
 
-        // TODO: search support
-
-        // let src = if do_search {
-        //     YoutubeDl::new_search(data.http.clone(), url)
-        // } else {
         let src = YoutubeDl::new(data.http.clone(), url.to_string());
-        // };
         let song = handler.play_input(src.into());
         let _ = song.enable_loop();
 
@@ -148,8 +140,6 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
                 }
             }
         }
-
-        // crate::youtube::get_video_title()
 
         interaction
             .create_response(
@@ -166,12 +156,7 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
             )
             .await?;
 
-        // let d = ctx.data.clone();
-        // let mut typemap = d.write().await;
-        // let data = typemap.get_mut::<UserData>().unwrap();
         data.track_handles.insert(guild_id, song);
-
-        // TODO: metadata (song name, link)
     } else {
         // TODO: error
         error!("Songbird get none")
