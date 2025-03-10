@@ -25,7 +25,8 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
                 CreateInteractionResponseMessage::new().embed(
                     CreateEmbed::new()
                         .color(Colour::new(COLOR_OK))
-                        .description("Stopped track"),
+                        .title("Stopping")
+                        .timestamp(Timestamp::now()),
                 ),
             ),
         )

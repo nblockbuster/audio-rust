@@ -41,7 +41,9 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
                     CreateInteractionResponseMessage::new().embed(
                         CreateEmbed::new()
                             .color(Colour::new(COLOR_OK))
-                            .description(format!("Set volume to {}", num)),
+                            .description(format!("Set volume to {}", num))
+                            .title("Volume")
+                            .timestamp(Timestamp::now()),
                     ),
                 ),
             )
@@ -55,7 +57,9 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
                     CreateInteractionResponseMessage::new().embed(
                         CreateEmbed::new()
                             .color(Colour::new(COLOR_ERROR))
-                            .description("Could not set volume"),
+                            .description("Could not set volume")
+                            .title("Error")
+                            .timestamp(Timestamp::now()),
                     ),
                 ),
             )
