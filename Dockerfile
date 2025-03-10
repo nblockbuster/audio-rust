@@ -15,6 +15,6 @@ FROM rust:1.85-slim-bookworm
 COPY --from=build /audio-bot/target/release/audio-bot .
 
 RUN apt-get update && apt-get -y install pipx
-RUN pipx install yt-dlp && yt-dlp -U
+RUN pipx install yt-dlp && pipx ensurepath && yt-dlp -U
 
 CMD ["./audio-bot"]
