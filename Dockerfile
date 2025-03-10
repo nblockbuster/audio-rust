@@ -5,16 +5,11 @@ WORKDIR /audio-bot
 
 COPY ./Cargo.lock ./Cargo.lock
 COPY ./Cargo.toml ./Cargo.toml
+COPY ./src ./src
 
 RUN apt update && apt -y install cmake && apt -y install pkg-config
 
 RUN cargo build --release
-RUN rm src/*.rs
-
-COPY ./src ./src
-RUN rm ./target/release/deps/audio-bot*
-RUN cargo build --release
-
 
 FROM rust:1.85-slim
 
