@@ -6,7 +6,8 @@ COPY ./Cargo.lock ./Cargo.lock
 COPY ./Cargo.toml ./Cargo.toml
 COPY ./src ./src
 
-RUN apk update && apk add musl-dev && apk add openssl-dev && apk add cmake && apk add pkgconfig && apk add yt-dlp
+RUN apk update && apk add musl-dev openssl-dev cmake \
+    make pkgconfig yt-dlp git gcc 
 
 RUN cargo build --release
 
