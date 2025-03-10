@@ -6,6 +6,8 @@ WORKDIR /audio-bot
 COPY ./Cargo.lock ./Cargo.lock
 COPY ./Cargo.toml ./Cargo.toml
 
+RUN apt-get install -y cmake
+
 RUN cargo build --release
 RUN rm src/*.rs
 
