@@ -6,7 +6,8 @@ COPY ./Cargo.lock ./Cargo.lock
 COPY ./Cargo.toml ./Cargo.toml
 COPY ./src ./src
 
-RUN apt update && apt -y install cmake && apt -y install pkg-config && add-apt-repository ppa:tomtomtom/yt-dlp && apt -y install yt-dlp
+RUN add-apt-repository ppa:tomtomtom/yt-dlp
+RUN apt update && apt -y install cmake && apt -y install pkg-config && apt -y install yt-dlp
 
 RUN cargo build --release
 
