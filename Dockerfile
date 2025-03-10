@@ -1,4 +1,4 @@
-FROM rust:1.85-slim-bullseye as build
+FROM rust:1.85-bullseye as build
 
 WORKDIR /audio-bot
 
