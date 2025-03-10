@@ -3,6 +3,8 @@ use songbird::events::{Event, EventContext, EventHandler as VoiceEventHandler, T
 
 pub mod r#loop;
 // pub mod pause;
+pub mod disconnect;
+pub mod pause;
 pub mod play;
 pub mod stop;
 pub mod volume;

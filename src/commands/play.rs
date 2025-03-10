@@ -29,18 +29,20 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
         {
             let url = Url::parse(url_str);
             if let Err(err) = url {
-                // interaction
-                //     .create_response(
-                //         ctx,
-                //         CreateInteractionResponse::Message(
-                //             CreateInteractionResponseMessage::new().embed(
-                //                 CreateEmbed::new()
-                //                     .color(Colour::new(0xFF0000))
-                //                     .description(format!("Not a valid URL: {}", err)),
-                //             ),
-                //         ),
-                //     )
-                //     .await?;
+                interaction
+                    .create_response(
+                        ctx,
+                        CreateInteractionResponse::Message(
+                            CreateInteractionResponseMessage::new().embed(
+                                CreateEmbed::new()
+                                    .color(Colour::new(COLOR_ERROR))
+                                    .description(format!("Not a valid URL: {}", err))
+                                    .title("Error")
+                                    .timestamp(Timestamp::now()),
+                            ),
+                        ),
+                    )
+                    .await?;
                 None
             } else {
                 Some(url.unwrap())
@@ -67,7 +69,9 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
                         .embed(
                             CreateEmbed::new()
                                 .color(Colour::new(COLOR_ERROR))
-                                .description("Not a valid Youtube URL"),
+                                .description("Not a valid Youtube URL")
+                                .title("Error")
+                                .timestamp(Timestamp::now()),
                         )
                         .ephemeral(true),
                 ),
@@ -83,18 +87,20 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
 
         let g = ctx.cache.guild(guild_id);
         if g.is_none() {
-            // interaction
-            //     .create_response(
-            //         ctx,
-            //         CreateInteractionResponse::Message(
-            //             CreateInteractionResponseMessage::new().embed(
-            //                 CreateEmbed::new()
-            //                     .color(Colour::new(COLOR_ERROR))
-            //                     .description("Could not get guild"),
-            //             ),
-            //         ),
-            //     )
-            //     .await?;
+            interaction
+                .create_response(
+                    ctx,
+                    CreateInteractionResponse::Message(
+                        CreateInteractionResponseMessage::new().embed(
+                            CreateEmbed::new()
+                                .color(Colour::new(COLOR_ERROR))
+                                .description("Could not get current guild information")
+                                .title("Error")
+                                .timestamp(Timestamp::now()),
+                        ),
+                    ),
+                )
+                .await?;
 
             // TODO: guild err
             error!("guild none");
@@ -119,6 +125,7 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
     if let Ok(handler_lock) = call {
         let mut handler = handler_lock.lock().await;
         handler.add_global_event(TrackEvent::Error.into(), TrackErrorNotifier);
+        let _ = handler.deafen(true).await;
     } else if let Err(e) = call {
         warn!("{}", e);
     }
@@ -129,6 +136,7 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
         let src = YoutubeDl::new(data.http.clone(), url.to_string());
         let song = handler.play_input(src.into());
         let _ = song.enable_loop();
+        let _ = song.set_volume(0.5);
 
         let mut title = String::new();
 
@@ -159,12 +167,26 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
         data.track_handles.insert(guild_id, song);
     } else {
         // TODO: error
-        error!("Songbird get none")
+        error!("Songbird get none");
         // check_msg(
         //     msg.channel_id
         //         .say(&ctx.http, "Not in a voice channel to play in")
         //         .await,
         // );
+        interaction
+            .create_response(
+                ctx,
+                CreateInteractionResponse::Message(
+                    CreateInteractionResponseMessage::new().embed(
+                        CreateEmbed::new()
+                            .color(Colour::new(COLOR_ERROR))
+                            .title("Error")
+                            .description("Could not get Songbird manager for guild")
+                            .timestamp(Timestamp::now()),
+                    ),
+                ),
+            )
+            .await?;
     }
 
     Ok(())

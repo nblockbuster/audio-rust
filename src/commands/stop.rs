@@ -14,9 +14,9 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
     let guild_id = interaction.guild_id.unwrap();
     let mut typemap = ctx.data.write().await;
     let data = typemap.get_mut::<UserData>().unwrap();
-    let handle = data.track_handles.get_mut(&guild_id).unwrap();
+    let track = data.track_handles.get_mut(&guild_id).unwrap();
 
-    let _ = handle.stop();
+    let _ = track.stop();
 
     interaction
         .create_response(

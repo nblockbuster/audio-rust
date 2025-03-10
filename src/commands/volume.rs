@@ -8,12 +8,16 @@ use crate::{COLOR_ERROR, COLOR_OK, UserData};
 
 pub fn register() -> CreateCommand {
     CreateCommand::new("volume")
-        .description("Adjust volume")
+        .description("Adjust volume of the bot for everyone")
         .add_option(
-            CreateCommandOption::new(CommandOptionType::Number, "number", "A float from 0 to 100")
-                .min_number_value(0.0)
-                .max_number_value(100.0)
-                .required(true),
+            CreateCommandOption::new(
+                CommandOptionType::Number,
+                "number",
+                "A number from 0 to 100, default 50",
+            )
+            .min_number_value(0.0)
+            .max_number_value(100.0)
+            .required(true),
         )
 }
 

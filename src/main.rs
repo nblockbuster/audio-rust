@@ -33,6 +33,8 @@ impl EventHandler for Handler {
             Command::create_global_command(&ctx.http, commands::r#loop::register()).await,
             Command::create_global_command(&ctx.http, commands::volume::register()).await,
             Command::create_global_command(&ctx.http, commands::stop::register()).await,
+            Command::create_global_command(&ctx.http, commands::disconnect::register()).await,
+            Command::create_global_command(&ctx.http, commands::pause::register()).await,
         ];
 
         info!("Created {} commands", commands.len());
@@ -60,6 +62,12 @@ impl EventHandler for Handler {
                 "stop" => {
                     commands::stop::run(&ctx, &command).await.unwrap();
                 }
+                "disconnect" => {
+                    commands::disconnect::run(&ctx, &command).await.unwrap();
+                }
+                "pause" => {
+                    commands::pause::run(&ctx, &command).await.unwrap();
+                }
                 _ => {}
             };
 
@@ -75,7 +83,7 @@ impl EventHandler for Handler {
 }
 
 use reqwest::Client as HttpClient;
-use songbird::tracks::TrackHandle;
+use songbird::{Config, tracks::TrackHandle};
 
 struct UserData {
     http: HttpClient,
