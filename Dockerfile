@@ -1,4 +1,4 @@
-FROM rust:1.85 as build
+FROM rust:1.85-alpine as build
 
 RUN USER=root cargo new --bin audio-bot
 WORKDIR /audio-bot
@@ -6,7 +6,7 @@ WORKDIR /audio-bot
 COPY ./Cargo.lock ./Cargo.lock
 COPY ./Cargo.toml ./Cargo.toml
 
-RUN apt-get install -y cmake
+RUN apk add cmake
 
 RUN cargo build --release
 RUN rm src/*.rs
