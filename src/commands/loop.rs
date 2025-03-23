@@ -16,31 +16,31 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
     let d = ctx.data.clone();
     let mut typemap = d.write().await;
     let data = typemap.get_mut::<UserData>().unwrap();
-    let handle = data.track_handles.get_mut(&guild_id).unwrap();
-    let loops: LoopState = handle.get_info().await.unwrap().loops;
-    let is_looping = match loops {
-        LoopState::Finite(0) => false,
-        LoopState::Finite(_) | LoopState::Infinite => true,
-    };
+    if let Some(track) = data.track_handles.get_mut(&guild_id) {
+        let loops: LoopState = track.get_info().await.unwrap().loops;
+        let is_looping = match loops {
+            LoopState::Finite(0) => false,
+            LoopState::Finite(_) | LoopState::Infinite => true,
+        };
 
-    if is_looping {
-        let _ = handle.disable_loop();
-    } else {
-        let _ = handle.enable_loop();
-    }
-
-    interaction
-        .create_response(
-            ctx,
-            CreateInteractionResponse::Message(
-                CreateInteractionResponseMessage::new().embed(
-                    CreateEmbed::new()
-                        .color(Colour::new(COLOR_OK))
-                        .description(format!("Set looping to {}", !is_looping)),
+        if is_looping {
+            let _ = track.disable_loop();
+        } else {
+            let _ = track.enable_loop();
+        }
+        interaction
+            .create_response(
+                ctx,
+                CreateInteractionResponse::Message(
+                    CreateInteractionResponseMessage::new().embed(
+                        CreateEmbed::new()
+                            .color(Colour::new(COLOR_OK))
+                            .description(format!("Set looping to {}", !is_looping)),
+                    ),
                 ),
-            ),
-        )
-        .await?;
+            )
+            .await?;
+    }
 
     Ok(())
 }

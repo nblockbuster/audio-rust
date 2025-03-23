@@ -26,44 +26,44 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
     let d = ctx.data.clone();
     let mut typemap = d.write().await;
     let data = typemap.get_mut::<UserData>().unwrap();
-    let handle = data.track_handles.get_mut(&guild_id).unwrap();
-
-    if let Some(ResolvedOption {
-        value: ResolvedValue::Number(num),
-        ..
-    }) = interaction.data.options().first().cloned()
-    {
-        let _ = handle.set_volume(num as f32 / 100.0);
-        interaction
-            .create_response(
-                ctx,
-                CreateInteractionResponse::Message(
-                    CreateInteractionResponseMessage::new().embed(
-                        CreateEmbed::new()
-                            .color(Colour::new(COLOR_OK))
-                            .description(format!("Set volume to {}", num))
-                            .title("Volume")
-                            .timestamp(Timestamp::now()),
+    if let Some(track) = data.track_handles.get_mut(&guild_id) {
+        if let Some(ResolvedOption {
+            value: ResolvedValue::Number(num),
+            ..
+        }) = interaction.data.options().first().cloned()
+        {
+            let _ = track.set_volume(num as f32 / 100.0);
+            interaction
+                .create_response(
+                    ctx,
+                    CreateInteractionResponse::Message(
+                        CreateInteractionResponseMessage::new().embed(
+                            CreateEmbed::new()
+                                .color(Colour::new(COLOR_OK))
+                                .description(format!("Set volume to {}", num))
+                                .title("Volume")
+                                .timestamp(Timestamp::now()),
+                        ),
                     ),
-                ),
-            )
-            .await?;
-    } else {
-        error!("invalid volume?");
-        interaction
-            .create_response(
-                ctx,
-                CreateInteractionResponse::Message(
-                    CreateInteractionResponseMessage::new().embed(
-                        CreateEmbed::new()
-                            .color(Colour::new(COLOR_ERROR))
-                            .description("Could not set volume")
-                            .title("Error")
-                            .timestamp(Timestamp::now()),
+                )
+                .await?;
+        } else {
+            error!("invalid volume?");
+            interaction
+                .create_response(
+                    ctx,
+                    CreateInteractionResponse::Message(
+                        CreateInteractionResponseMessage::new().embed(
+                            CreateEmbed::new()
+                                .color(Colour::new(COLOR_ERROR))
+                                .description("Could not set volume")
+                                .title("Error")
+                                .timestamp(Timestamp::now()),
+                        ),
                     ),
-                ),
-            )
-            .await?;
+                )
+                .await?;
+        }
     }
 
     Ok(())

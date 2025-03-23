@@ -93,6 +93,7 @@ struct UserData {
     http: HttpClient,
     songbird: Arc<songbird::Songbird>,
     track_handles: HashMap<GuildId, TrackHandle>,
+    is_recording: bool,
 }
 
 impl TypeMapKey for UserData {
@@ -106,11 +107,14 @@ async fn main() -> anyhow::Result<()> {
             .default_filter_or("info,serenity=warn,songbird=warn,tracing=warn,symphonia_core=warn"),
     );
 
-    let manager = songbird::Songbird::serenity();
+    let manager = songbird::Songbird::serenity_from_config(
+        Config::default().decode_mode(songbird::driver::DecodeMode::Decode),
+    );
     let user_data = UserData {
         http: HttpClient::new(),
         songbird: Arc::clone(&manager),
         track_handles: HashMap::new(),
+        is_recording: false,
     };
 
     let token = std::env::var("BOT_TOKEN")?;

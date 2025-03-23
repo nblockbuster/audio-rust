@@ -1,19 +1,19 @@
 use serenity::async_trait;
-use songbird::events::{Event, EventContext, EventHandler as VoiceEventHandler, TrackEvent};
+use songbird::events::{Event, EventContext, EventHandler, TrackEvent};
 
 pub mod r#loop;
 // pub mod pause;
 pub mod disconnect;
 pub mod pause;
 pub mod play;
+pub mod record;
 pub mod stop;
 pub mod volume;
-// pub mod record;
 
 struct TrackErrorNotifier;
 
 #[async_trait]
-impl VoiceEventHandler for TrackErrorNotifier {
+impl EventHandler for TrackErrorNotifier {
     async fn act(&self, ctx: &EventContext<'_>) -> Option<Event> {
         if let EventContext::Track(track_list) = ctx {
             for (state, handle) in *track_list {
