@@ -10,17 +10,20 @@ use crate::{COLOR_ERROR, COLOR_OK, UserData, commands::TrackErrorNotifier};
 pub fn register() -> CreateCommand {
     CreateCommand::new("play")
         .description("Play a song")
-        .add_option(
-            CreateCommandOption::new(
-                CommandOptionType::String,
-                "link",
-                "The link of the audio to play",
-            )
-            .required(true),
-        )
+        .add_option(CreateCommandOption::new(
+            CommandOptionType::String,
+            "link",
+            "The link of the audio to play",
+        ))
+        .add_option(CreateCommandOption::new(
+            CommandOptionType::Attachment,
+            "file",
+            "Audio file to play",
+        ))
 }
 
 pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), serenity::Error> {
+    let mut filename = String::new();
     let url = {
         if let Some(ResolvedOption {
             value: ResolvedValue::String(url_str),
@@ -28,6 +31,32 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
         }) = interaction.data.options().first().cloned()
         {
             let url = Url::parse(url_str);
+            if let Err(err) = url {
+                interaction
+                    .create_response(
+                        ctx,
+                        CreateInteractionResponse::Message(
+                            CreateInteractionResponseMessage::new().embed(
+                                CreateEmbed::new()
+                                    .color(Colour::new(COLOR_ERROR))
+                                    .description(format!("Not a valid URL: {}", err))
+                                    .title("Error")
+                                    .timestamp(Timestamp::now()),
+                            ),
+                        ),
+                    )
+                    .await?;
+                None
+            } else {
+                Some(url.unwrap())
+            }
+        } else if let Some(ResolvedOption {
+            value: ResolvedValue::Attachment(a),
+            ..
+        }) = interaction.data.options().first().cloned()
+        {
+            filename = a.filename.clone();
+            let url = Url::parse(&a.url);
             if let Err(err) = url {
                 interaction
                     .create_response(
@@ -59,27 +88,6 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
     }
 
     let url = url.unwrap();
-
-    if !url.to_string().contains("youtu") {
-        interaction
-            .create_response(
-                ctx,
-                CreateInteractionResponse::Message(
-                    CreateInteractionResponseMessage::new()
-                        .embed(
-                            CreateEmbed::new()
-                                .color(Colour::new(COLOR_ERROR))
-                                .description("Not a valid Youtube URL")
-                                .title("Error")
-                                .timestamp(Timestamp::now()),
-                        )
-                        .ephemeral(true),
-                ),
-            )
-            .await?;
-        warn!("not a valid youtube url");
-        return Ok(());
-    }
 
     let (guild_id, channel_id) = {
         let guild_id = interaction.guild_id.unwrap();
@@ -139,11 +147,15 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
 
         let mut title = String::new();
 
-        let pairs = url.query_pairs();
-        for pair in pairs {
-            if pair.0 == "v" {
-                if let Ok(title1) = crate::youtube::get_video_title(&pair.1).await {
-                    title = title1;
+        if url.to_string().contains("cdn.discordapp.com") {
+            title = filename;
+        } else if url.to_string().contains("youtu") {
+            let pairs = url.query_pairs();
+            for pair in pairs {
+                if pair.0 == "v" {
+                    if let Ok(title1) = crate::youtube::get_video_title(&pair.1).await {
+                        title = title1;
+                    }
                 }
             }
         }

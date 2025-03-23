@@ -35,6 +35,7 @@ impl EventHandler for Handler {
             Command::create_global_command(&ctx.http, commands::stop::register()).await,
             Command::create_global_command(&ctx.http, commands::disconnect::register()).await,
             Command::create_global_command(&ctx.http, commands::pause::register()).await,
+            Command::create_global_command(&ctx.http, commands::record::register()).await,
         ];
 
         info!("Created {} commands", commands.len());
@@ -67,6 +68,9 @@ impl EventHandler for Handler {
                 }
                 "pause" => {
                     commands::pause::run(&ctx, &command).await.unwrap();
+                }
+                "record" => {
+                    commands::record::run(&ctx, &command).await.unwrap();
                 }
                 _ => {}
             };
@@ -111,7 +115,8 @@ async fn main() -> anyhow::Result<()> {
 
     let token = std::env::var("BOT_TOKEN")?;
 
-    let intents = GatewayIntents::GUILDS | GatewayIntents::GUILD_VOICE_STATES;
+    let intents =
+        GatewayIntents::default() | GatewayIntents::GUILDS | GatewayIntents::GUILD_VOICE_STATES;
     let mut client = Client::builder(token, intents)
         .type_map_insert::<UserData>(user_data)
         .voice_manager_arc(manager)
@@ -121,7 +126,7 @@ async fn main() -> anyhow::Result<()> {
 
     tokio::spawn(async move {
         let _ = client
-            .start()
+            .start_autosharded()
             .await
             .map_err(|why| error!("Client ended: {:?}", why));
     });

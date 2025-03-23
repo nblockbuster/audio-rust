@@ -8,6 +8,7 @@ pub mod pause;
 pub mod play;
 pub mod stop;
 pub mod volume;
+pub mod record;
 
 struct TrackErrorNotifier;
 
