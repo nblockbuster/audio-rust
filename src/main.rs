@@ -35,7 +35,7 @@ impl EventHandler for Handler {
             Command::create_global_command(&ctx.http, commands::stop::register()).await,
             Command::create_global_command(&ctx.http, commands::disconnect::register()).await,
             Command::create_global_command(&ctx.http, commands::pause::register()).await,
-            Command::create_global_command(&ctx.http, commands::record::register()).await,
+            // Command::create_global_command(&ctx.http, commands::record::register()).await,
         ];
 
         info!("Created {} commands", commands.len());
@@ -69,9 +69,9 @@ impl EventHandler for Handler {
                 "pause" => {
                     commands::pause::run(&ctx, &command).await.unwrap();
                 }
-                "record" => {
-                    commands::record::run(&ctx, &command).await.unwrap();
-                }
+                // "record" => {
+                //     commands::record::run(&ctx, &command).await.unwrap();
+                // }
                 _ => {}
             };
 
