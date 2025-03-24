@@ -1,3 +1,4 @@
+use log::info;
 use serde::Deserialize;
 
 pub async fn get_video_title(id: &str) -> Result<String, Box<dyn std::error::Error>> {
@@ -50,7 +51,7 @@ pub struct YoutubeSearchItem {
 pub struct YoutubeSearchID {
     pub kind: String,
     #[serde(rename = "videoId")]
-    pub videoid: String,
+    pub videoid: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -88,8 +89,9 @@ pub async fn search_videos(
         println!("Response body: {}", response.text().await?);
         return Err("API request failed".into());
     }
-
-    let res: YoutubeSearch = response.json().await?; // Parse the response body as JSON
+    // let t = response.text().await?;
+    // info!("{}", t);
+    let res: YoutubeSearch = response.json().await?; // serde_json::from_str(&t)?;
 
     // Check for API errors
     if let Some(error) = res.error {

@@ -1,4 +1,3 @@
-use itertools::Itertools;
 use log::{error, warn};
 use serenity::builder::*;
 use serenity::model::prelude::*;
@@ -104,9 +103,15 @@ pub async fn run_command(
 
     if is_search {
         let results = crate::youtube::search_videos(&search_str).await.unwrap();
-        let menu_options = results[..5].iter().map(|x| {
-            let title = truncate(x.snippet.title.as_str(), 100);
-            CreateSelectMenuOption::new(title, x.id.videoid.clone())
+        let mut menu_options = vec![];
+        results[..5].iter().for_each(|x| {
+            if x.id.videoid.is_none() || x.id.videoid.is_none() {
+                return;
+            }
+            menu_options.push(CreateSelectMenuOption::new(
+                truncate(x.snippet.title.as_str(), 100),
+                x.id.videoid.clone().unwrap(),
+            ));
         });
 
         interaction
@@ -117,7 +122,7 @@ pub async fn run_command(
                         CreateSelectMenu::new(
                             "select_search",
                             CreateSelectMenuKind::String {
-                                options: menu_options.collect_vec(),
+                                options: menu_options,
                             },
                         )
                         .placeholder("Select a video"),
