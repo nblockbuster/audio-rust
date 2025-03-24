@@ -1,8 +1,7 @@
-use log::{error, info, warn};
 use serenity::builder::*;
 use serenity::model::prelude::*;
 use serenity::prelude::*;
-use songbird::{TrackEvent, tracks::PlayMode};
+use songbird::tracks::PlayMode;
 
 use crate::{COLOR_ERROR, COLOR_OK, UserData};
 

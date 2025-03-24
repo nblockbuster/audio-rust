@@ -1,5 +1,5 @@
 use serenity::async_trait;
-use songbird::events::{Event, EventContext, EventHandler, TrackEvent};
+use songbird::events::{Event, EventContext, EventHandler};
 
 pub mod r#loop;
 // pub mod pause;

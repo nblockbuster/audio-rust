@@ -1,11 +1,8 @@
-use std::str::FromStr;
-
 use itertools::Itertools;
-use log::{error, info, warn};
+use log::{error, warn};
 use serenity::builder::*;
 use serenity::model::prelude::*;
 use serenity::prelude::*;
-use serenity::utils::CreateQuickModal;
 use songbird::{TrackEvent, input::YoutubeDl};
 use url::*;
 
@@ -61,7 +58,7 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
         }) = options.first().cloned()
         {
             let url = Url::parse(url_str);
-            if let Err(err) = url {
+            if url.is_err() {
                 search_str = url_str.to_string();
             } else {
                 final_url = Some(url.unwrap());
@@ -254,7 +251,7 @@ pub async fn run_component(
     ctx: &Context,
     interaction: &ComponentInteraction,
 ) -> Result<(), serenity::Error> {
-    let mut final_url: Option<Url> = None;
+    let final_url: Option<Url>;
     if let ComponentInteractionDataKind::StringSelect { values } = &interaction.data.kind {
         let id = values[0].clone();
         let url = format!("https://youtube.com/watch?v={}", id);

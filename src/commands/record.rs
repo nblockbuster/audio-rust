@@ -1,16 +1,10 @@
-use std::{
-    collections::HashMap,
-    io::Write,
-    sync::{
-        Arc,
-        atomic::{AtomicBool, Ordering},
-    },
-    time::Duration,
+use std::sync::{
+    Arc,
+    atomic::{AtomicBool, Ordering},
 };
 
 use chrono::{DateTime, Utc};
 use dashmap::DashMap;
-use hound::WavWriter;
 use log::{error, info, warn};
 use serenity::model::prelude::*;
 use serenity::prelude::*;
@@ -279,30 +273,30 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
         let guild_id = interaction.guild_id.unwrap();
         let user = interaction.user.id;
 
-        let g = ctx.cache.guild(guild_id);
-        if g.is_none() {
-            let _ = interaction.create_response(
-                ctx,
-                CreateInteractionResponse::Message(
-                    CreateInteractionResponseMessage::new().embed(
-                        CreateEmbed::new()
-                            .color(Colour::new(COLOR_ERROR))
-                            .description("Could not get current guild information")
-                            .title("Error")
-                            .timestamp(Timestamp::now()),
+        if let Some(g) = ctx.cache.guild(guild_id) {
+            let vs = g.voice_states.get(&user).unwrap();
+
+            (guild_id, vs.channel_id.unwrap())
+        } else {
+            interaction
+                .create_response(
+                    ctx,
+                    CreateInteractionResponse::Message(
+                        CreateInteractionResponseMessage::new().embed(
+                            CreateEmbed::new()
+                                .color(Colour::new(COLOR_ERROR))
+                                .description("Could not get current guild information")
+                                .title("Error")
+                                .timestamp(Timestamp::now()),
+                        ),
                     ),
-                ),
-            );
+                )
+                .await?;
 
             // TODO: guild err
             error!("guild none");
             return Ok(());
         }
-        let g = g.unwrap();
-        // TODO: no voice
-        let vs = g.voice_states.get(&user).unwrap();
-
-        (guild_id, vs.channel_id.unwrap())
     };
 
     let mut typemap = ctx.data.write().await;
@@ -335,7 +329,8 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
         warn!("{}", e);
     }
 
-    if let Ok(handler_lock) = manager.join(guild_id, channel_id).await {
+    // if let Ok(handler_lock) = manager.join(guild_id, channel_id).await {
+    if manager.join(guild_id, channel_id).await.is_ok() {
         // check_msg(
         //     msg.channel_id
         //         .say(&ctx.http, &format!("Joined {}", channel_id.mention()))

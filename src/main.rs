@@ -4,7 +4,6 @@ use log::{error, info};
 use serenity::{
     all::GuildId,
     async_trait,
-    builder::{CreateInteractionResponse, CreateInteractionResponseMessage},
     model::{
         application::{Command, Interaction},
         gateway::Ready,
@@ -42,7 +41,7 @@ impl EventHandler for Handler {
         // println!("I created the following global slash command: {command:#?}");
     }
 
-    async fn cache_ready(&self, ctx: Context, _guilds: Vec<GuildId>) {
+    async fn cache_ready(&self, _ctx: Context, _guilds: Vec<GuildId>) {
         info!("Cache is ready!");
     }
 
@@ -83,13 +82,10 @@ impl EventHandler for Handler {
             //     }
             // }
         } else if let Interaction::Component(component) = interaction {
-            match component.data.custom_id.as_str() {
-                "select_search" => {
-                    commands::play::run_component(&ctx, &component)
-                        .await
-                        .unwrap();
-                }
-                _ => {}
+            if component.data.custom_id.as_str() == "select_search" {
+                commands::play::run_component(&ctx, &component)
+                    .await
+                    .unwrap();
             }
         }
     }
