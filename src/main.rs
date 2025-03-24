@@ -51,7 +51,7 @@ impl EventHandler for Handler {
 
             match command.data.name.as_str() {
                 "play" => {
-                    commands::play::run(&ctx, &command).await.unwrap();
+                    commands::play::run_command(&ctx, &command).await.unwrap();
                 }
                 "loop" => {
                     commands::r#loop::run(&ctx, &command).await.unwrap();

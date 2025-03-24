@@ -43,7 +43,10 @@ pub fn register() -> CreateCommand {
         )
 }
 
-pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), serenity::Error> {
+pub async fn run_command(
+    ctx: &Context,
+    interaction: &CommandInteraction,
+) -> Result<(), serenity::Error> {
     let mut filename = String::new();
     let mut final_url: Option<Url> = None;
     let mut search_str = String::new();
@@ -99,6 +102,32 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
         // warn!("url none");
     }
 
+    if is_search {
+        let results = crate::youtube::search_videos(&search_str).await.unwrap();
+        let menu_options = results[..5].iter().map(|x| {
+            let title = truncate(x.snippet.title.as_str(), 100);
+            CreateSelectMenuOption::new(title, x.id.videoid.clone())
+        });
+
+        interaction
+            .create_response(
+                ctx,
+                CreateInteractionResponse::Message(
+                    CreateInteractionResponseMessage::new().select_menu(
+                        CreateSelectMenu::new(
+                            "select_search",
+                            CreateSelectMenuKind::String {
+                                options: menu_options.collect_vec(),
+                            },
+                        )
+                        .placeholder("Select a video"),
+                    ),
+                ),
+            )
+            .await?;
+        return Ok(());
+    }
+
     let (guild_id, channel_id) = {
         let guild_id = interaction.guild_id.unwrap();
         let user = interaction.user.id;
@@ -130,17 +159,9 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
         }
     };
 
-    let interact_resp = play_audio(
-        ctx,
-        guild_id,
-        channel_id,
-        is_search,
-        &search_str,
-        final_url,
-        filename,
-    )
-    .await
-    .unwrap();
+    let interact_resp = play_audio(ctx, guild_id, channel_id, final_url, filename)
+        .await
+        .unwrap();
 
     interaction.create_response(ctx, interact_resp).await?;
     Ok(())
@@ -150,8 +171,6 @@ async fn play_audio(
     ctx: &Context,
     guild_id: GuildId,
     channel_id: ChannelId,
-    is_search: bool,
-    search_str: &str,
     url: Option<Url>,
     filename: String,
 ) -> Result<CreateInteractionResponse, ()> {
@@ -173,27 +192,6 @@ async fn play_audio(
 
     if let Some(handler_lock) = data.songbird.get(guild_id) {
         let mut handler = handler_lock.lock().await;
-        if is_search {
-            // let mut src = YoutubeDl::new_search(data.http.clone(), search_str);
-            // let results = src.search(None).await.unwrap();
-            let results = crate::youtube::search_videos(search_str).await.unwrap();
-            let menu_options = results[..5].iter().map(|x| {
-                let title = truncate(x.snippet.title.as_str(), 100);
-                CreateSelectMenuOption::new(title, x.id.videoid.clone())
-            });
-
-            return Ok(CreateInteractionResponse::Message(
-                CreateInteractionResponseMessage::new().select_menu(
-                    CreateSelectMenu::new(
-                        "select_search",
-                        CreateSelectMenuKind::String {
-                            options: menu_options.collect_vec(),
-                        },
-                    )
-                    .placeholder("Select a video"),
-                ),
-            ));
-        }
 
         let url = url.unwrap();
         let src = YoutubeDl::new(data.http.clone(), url.to_string());
@@ -212,6 +210,8 @@ async fn play_audio(
                     }
                 }
             }
+        } else {
+            title = url.to_string();
         }
 
         // TODO: persist loop setting
@@ -292,17 +292,9 @@ pub async fn run_component(
             // (GuildId::new(0), ChannelId::new(0))
         }
     };
-    let interact_resp = play_audio(
-        ctx,
-        guild_id,
-        channel_id,
-        false,
-        "",
-        final_url,
-        String::new(),
-    )
-    .await
-    .unwrap();
+    let interact_resp = play_audio(ctx, guild_id, channel_id, final_url, String::new())
+        .await
+        .unwrap();
 
     interaction.create_response(ctx, interact_resp).await?;
 
