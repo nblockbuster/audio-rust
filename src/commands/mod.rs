@@ -1,12 +1,12 @@
 use serenity::async_trait;
 use songbird::events::{Event, EventContext, EventHandler};
 
-pub mod r#loop;
-// pub mod pause;
 pub mod disconnect;
+pub mod r#loop;
 pub mod pause;
 pub mod play;
 pub mod record;
+pub mod search;
 pub mod stop;
 pub mod volume;
 

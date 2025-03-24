@@ -102,34 +102,8 @@ pub async fn run_command(
     }
 
     if is_search {
-        let results = crate::youtube::search_videos(&search_str).await.unwrap();
-        let mut menu_options = vec![];
-        results[..5].iter().for_each(|x| {
-            if x.id.videoid.is_none() || x.id.videoid.is_none() {
-                return;
-            }
-            menu_options.push(CreateSelectMenuOption::new(
-                truncate(x.snippet.title.as_str(), 100),
-                x.id.videoid.clone().unwrap(),
-            ));
-        });
-
-        interaction
-            .create_response(
-                ctx,
-                CreateInteractionResponse::Message(
-                    CreateInteractionResponseMessage::new().select_menu(
-                        CreateSelectMenu::new(
-                            "select_search",
-                            CreateSelectMenuKind::String {
-                                options: menu_options,
-                            },
-                        )
-                        .placeholder("Select a video"),
-                    ),
-                ),
-            )
-            .await?;
+        let resp = search(&search_str).await;
+        interaction.create_response(ctx, resp).await?;
         return Ok(());
     }
 
@@ -302,10 +276,6 @@ pub async fn run_component(
         .unwrap();
 
     interaction.create_response(ctx, interact_resp).await?;
-
-    // if let ComponentInteractionDataKind::StringSelect { values } = &interaction.data.kind {
-
-    // }
     Ok(())
 }
 
@@ -316,7 +286,28 @@ fn truncate(s: &str, max_chars: usize) -> &str {
     }
 }
 
-// fn truncate_in_place(s: &mut String, max_chars: usize) {
-//     let bytes = truncate(s, max_chars).len();
-//     s.truncate(bytes);
-// }
+pub async fn search(search_str: &str) -> CreateInteractionResponse {
+    let results = crate::youtube::search_videos(search_str).await.unwrap();
+    let mut menu_options = vec![];
+    results[..5].iter().for_each(|x| {
+        if x.id.videoid.is_none() || x.id.videoid.is_none() {
+            return;
+        }
+        menu_options.push(CreateSelectMenuOption::new(
+            truncate(x.snippet.title.as_str(), 100),
+            x.id.videoid.clone().unwrap(),
+        ));
+    });
+
+    CreateInteractionResponse::Message(
+        CreateInteractionResponseMessage::new().select_menu(
+            CreateSelectMenu::new(
+                "select_search",
+                CreateSelectMenuKind::String {
+                    options: menu_options,
+                },
+            )
+            .placeholder("Select a video"),
+        ),
+    )
+}

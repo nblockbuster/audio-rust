@@ -163,7 +163,6 @@ name = "audio-bot"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "bytemuck",
  "chrono",
  "dashmap 6.1.0",
  "env_logger",

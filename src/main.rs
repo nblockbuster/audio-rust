@@ -1,6 +1,5 @@
-use std::{collections::HashMap, sync::Arc};
-
 use log::{error, info};
+use reqwest::Client as HttpClient;
 use serenity::{
     all::GuildId,
     async_trait,
@@ -10,11 +9,12 @@ use serenity::{
     },
     prelude::*,
 };
+use songbird::{Config, tracks::TrackHandle};
+use std::{collections::HashMap, sync::Arc};
 
 mod commands;
 pub mod youtube;
 
-// const BOT_TOKEN: &str = include_str!("../bot_token");
 const COLOR_OK: u32 = 0xcba6f7;
 const COLOR_ERROR: u32 = 0xf38ba8;
 
@@ -34,6 +34,7 @@ impl EventHandler for Handler {
             Command::create_global_command(&ctx.http, commands::stop::register()).await,
             Command::create_global_command(&ctx.http, commands::disconnect::register()).await,
             Command::create_global_command(&ctx.http, commands::pause::register()).await,
+            Command::create_global_command(&ctx.http, commands::search::register()).await,
             // Command::create_global_command(&ctx.http, commands::record::register()).await,
         ];
 
@@ -68,6 +69,9 @@ impl EventHandler for Handler {
                 "pause" => {
                     commands::pause::run(&ctx, &command).await.unwrap();
                 }
+                "search" => {
+                    commands::search::run(&ctx, &command).await.unwrap();
+                }
                 // "record" => {
                 //     commands::record::run(&ctx, &command).await.unwrap();
                 // }
@@ -90,9 +94,6 @@ impl EventHandler for Handler {
         }
     }
 }
-
-use reqwest::Client as HttpClient;
-use songbird::{Config, tracks::TrackHandle};
 
 struct UserData {
     http: HttpClient,

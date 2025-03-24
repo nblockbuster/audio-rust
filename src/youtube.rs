@@ -1,4 +1,3 @@
-use log::info;
 use serde::Deserialize;
 
 pub async fn get_video_title(id: &str) -> Result<String, Box<dyn std::error::Error>> {
