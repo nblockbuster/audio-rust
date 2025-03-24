@@ -82,6 +82,15 @@ impl EventHandler for Handler {
             //         println!("Cannot respond to slash command: {why}");
             //     }
             // }
+        } else if let Interaction::Component(component) = interaction {
+            match component.data.custom_id.as_str() {
+                "select_search" => {
+                    commands::play::run_component(&ctx, &component)
+                        .await
+                        .unwrap();
+                }
+                _ => {}
+            }
         }
     }
 }

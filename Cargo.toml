@@ -7,7 +7,7 @@ edition = "2024"
 env_logger = "0.11"
 log = "0.4"
 reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
-serenity = { version = "0.12", features = ["voice", "gateway", "model", "client", "cache", "rustls_backend"] }
+serenity = { version = "0.12", features = ["voice", "gateway", "model", "client", "cache", "rustls_backend", "collector"] }
 songbird = { version = "0.5", features = ["receive"], default-features = true }
 symphonia = { version = "0.5", features = ["aac", "mp3", "isomp4", "alac"], default-features = true }
 tokio = { version = "1", features = ["full"] }
@@ -19,3 +19,4 @@ dashmap = "6.1.0"
 bytemuck = "1.22.0"
 hound = "3.5.1"
 chrono = "0.4.40"
+itertools = "0.14.0"
