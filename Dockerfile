@@ -1,4 +1,4 @@
-FROM rust:1.85-bookworm AS build
+FROM rust:1.85-alpine AS build
 
 WORKDIR /audio-bot
 
@@ -6,16 +6,14 @@ COPY ./Cargo.lock ./Cargo.lock
 COPY ./Cargo.toml ./Cargo.toml
 COPY ./src ./src
 
-RUN apt-get update && apt-get -y install cmake && apt-get -y install pkg-config
+RUN apk add git make g++ gcc cmake pkgconf musl-dev
 
 RUN cargo build --release
 
-FROM rust:1.85-slim-bookworm
+FROM alpine:3.21
 
-COPY --from=build /audio-bot/target/release/audio-bot .
+COPY --from=build /audio-bot/target/release/audio-bot /
 
-ENV PATH="/root/.local/bin:$PATH" 
-RUN apt-get update && apt-get -y install pipx
-RUN pipx install yt-dlp
+RUN apk add --no-cache yt-dlp
 
 CMD ["./audio-bot"]

@@ -5,7 +5,7 @@ pub mod disconnect;
 pub mod r#loop;
 pub mod pause;
 pub mod play;
-pub mod record;
+//pub mod record;
 pub mod search;
 pub mod stop;
 pub mod volume;
