@@ -32,8 +32,11 @@ jobs:
       - name: inject cache into docker
         uses: reproducible-containers/buildkit-cache-dance@v3.1.0
         with:
-          cache-source: sccache
-          cache-target: /sccache
+          cache-map: |
+            {
+              "sccache": "/sccache"
+            }
+          skip-extraction: ${{ steps.cache.outputs.cache-hit }}
 
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v5
