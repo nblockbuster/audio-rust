@@ -99,7 +99,6 @@ struct UserData {
     http: HttpClient,
     songbird: Arc<songbird::Songbird>,
     track_handles: HashMap<GuildId, TrackHandle>,
-    is_recording: bool,
 }
 
 impl TypeMapKey for UserData {
@@ -125,7 +124,6 @@ async fn main() -> anyhow::Result<()> {
         http: HttpClient::new(),
         songbird: Arc::clone(&manager),
         track_handles: HashMap::new(),
-        is_recording: false,
     };
 
     let token = std::env::var("BOT_TOKEN")?;
