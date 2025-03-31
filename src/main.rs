@@ -106,6 +106,11 @@ impl TypeMapKey for UserData {
     type Value = UserData;
 }
 
+use mimalloc::MiMalloc;
+
+#[global_allocator]
+static GLOBAL: MiMalloc = MiMalloc;
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     env_logger::init_from_env(
