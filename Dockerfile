@@ -25,4 +25,5 @@ RUN --mount=type=cache,target=$SCCACHE_DIR,sharing=locked cargo build --release
 FROM alpine:3.21 AS runtime
 COPY --from=build /app/target/release/audio-bot /
 RUN apk add --no-cache yt-dlp
+RUN yt-dlp -U
 CMD ["./audio-bot"]
